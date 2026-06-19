@@ -1,0 +1,22 @@
+{
+  "name": "Cornerstone Connect",
+  "short_name": "Connect",
+  "description": "Premium Local Business Directory for the Oak Harbor network in Slidell, LA.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1615",
+  "theme_color": "#5f6654",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "photos/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "photos/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
