@@ -710,6 +710,67 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Clipboard paste auto-fill integration
+  const clipboardBtn = document.getElementById('btn-clipboard-paste');
+  if (clipboardBtn) {
+    clipboardBtn.addEventListener('click', async () => {
+      try {
+        let text = '';
+        // Try reading clipboard directly if supported
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          text = await navigator.clipboard.readText();
+        }
+        
+        // If clipboard is empty, fallback to prompt dialog
+        if (!text || text.trim() === '') {
+          const pastedText = prompt("Please paste the copied business card text below:");
+          if (pastedText && pastedText.trim() !== '') {
+            text = pastedText;
+          } else {
+            return; // Cancelled
+          }
+        }
+        
+        previewContainer.classList.remove('scanning');
+        previewContainer.classList.remove('active');
+        ocrProgressContainer.classList.remove('active');
+        
+        rawTextContent.textContent = text;
+        verificationPanel.style.display = 'block';
+        
+        parseCardTextAndFillForm(text);
+        
+        const notesField = document.getElementById('verify-notes');
+        if (notesField) {
+          notesField.value = 'Imported via native camera clipboard scan';
+        }
+        
+        showToast("Clipboard text parsed successfully!");
+        verificationPanel.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.warn("Clipboard API restricted:", err);
+        const pastedText = prompt("Clipboard access is restricted. Please paste your business card text below:");
+        if (pastedText && pastedText.trim() !== '') {
+          previewContainer.classList.remove('scanning');
+          previewContainer.classList.remove('active');
+          ocrProgressContainer.classList.remove('active');
+          
+          rawTextContent.textContent = pastedText;
+          verificationPanel.style.display = 'block';
+          parseCardTextAndFillForm(pastedText);
+          
+          const notesField = document.getElementById('verify-notes');
+          if (notesField) {
+            notesField.value = 'Imported via manually pasted text';
+          }
+          
+          showToast("Pasted text parsed successfully!");
+          verificationPanel.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    });
+  }
+
   function parseVCardText(text) {
     const lines = text.split(/\r?\n/);
     const biz = {
