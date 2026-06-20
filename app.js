@@ -1056,7 +1056,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applyBranding() {
     brandName = localStorage.getItem('cornerstone_brand_name') || "Cornerstone Connect";
-    brandSlogan = localStorage.getItem('cornerstone_brand_slogan') || "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust.";
+    
+    let storedSlogan = localStorage.getItem('cornerstone_brand_slogan');
+    if (storedSlogan === "Mindy's Trusted Local Network \u00b7 Slow down. Restore. Return to you." || 
+        storedSlogan === "Mindy's Trusted Local Network · Slow down. Restore. Return to you.") {
+      localStorage.setItem('cornerstone_brand_slogan', "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust.");
+      storedSlogan = "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust.";
+    }
+    brandSlogan = storedSlogan || "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust.";
     brandColor = localStorage.getItem('cornerstone_brand_color') || "#5f6654";
     brandLogo = localStorage.getItem('cornerstone_brand_logo') || "";
 
