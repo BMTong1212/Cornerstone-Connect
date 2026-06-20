@@ -666,35 +666,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- OCR Card Scanner Integration ---
   
-  // Drag and drop / file picker clicks
-  uploadArea.addEventListener('click', () => fileInput.click());
+  // Drag and drop / file picker clicks (guarded — uploadArea is a hidden compat node)
+  if (uploadArea) {
+    uploadArea.addEventListener('click', () => fileInput && fileInput.click());
 
-  uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.style.borderColor = 'var(--accent-gold)';
-    uploadArea.style.backgroundColor = 'var(--bg-input)';
-  });
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--accent-gold)';
+      uploadArea.style.backgroundColor = 'var(--bg-input)';
+    });
 
-  uploadArea.addEventListener('dragleave', () => {
-    uploadArea.style.borderColor = 'var(--border)';
-    uploadArea.style.backgroundColor = 'var(--bg-card)';
-  });
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.style.borderColor = 'var(--border)';
+      uploadArea.style.backgroundColor = 'var(--bg-card)';
+    });
 
-  uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.style.borderColor = 'var(--border)';
-    uploadArea.style.backgroundColor = 'var(--bg-card)';
-    
-    if (e.dataTransfer.files.length > 0) {
-      processFile(e.dataTransfer.files[0]);
-    }
-  });
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--border)';
+      uploadArea.style.backgroundColor = 'var(--bg-card)';
+      
+      if (e.dataTransfer.files.length > 0) {
+        processFile(e.dataTransfer.files[0]);
+      }
+    });
+  }
 
-  fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-      processFile(e.target.files[0]);
-    }
-  });
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        processFile(e.target.files[0]);
+      }
+    });
+  }
 
   // client vCard file picker integration
   const clientVcardBtn = document.getElementById('btn-vcard-import-client');
@@ -1630,9 +1634,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function saveNewBusiness(biz) {
-    customBusinesses.push(biz);
-    localStorage.setItem('cornerstone_custom_businesses', JSON.stringify(customBusinesses));
-    renderDirectory();
+    try {
+      customBusinesses.push(biz);
+      localStorage.setItem('cornerstone_custom_businesses', JSON.stringify(customBusinesses));
+      renderDirectory();
+    } catch (e) {
+      console.error('[Cornerstone] Failed to save business to localStorage:', e);
+      showToast('Save failed. Storage may be full or restricted.');
+    }
   }
 
   // --- Export / Import Backup Management ---
