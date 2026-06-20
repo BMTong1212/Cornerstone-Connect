@@ -4,8 +4,8 @@
   "description": "Premium Local Business Directory for the Oak Harbor network in Slidell, LA.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#4F5A46",
-  "theme_color": "#4F5A46",
+  "background_color": "#7B8A74",
+  "theme_color": "#7B8A74",
   "orientation": "portrait",
   "icons": [
     {
