@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Branding Customization State
   let brandName = "Cornerstone Connect";
-  let brandSlogan = "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust.";
+  let brandSlogan = "Curated with care \u00b7 Rooted in trust.";
   let brandColor = "#5f6654";
   let brandLogo = ""; // base64 representation
 
@@ -1059,11 +1059,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let storedSlogan = localStorage.getItem('cornerstone_brand_slogan');
     if (storedSlogan === "Mindy's Trusted Local Network \u00b7 Slow down. Restore. Return to you." || 
-        storedSlogan === "Mindy's Trusted Local Network · Slow down. Restore. Return to you.") {
-      localStorage.setItem('cornerstone_brand_slogan', "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust.");
-      storedSlogan = "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust.";
+        storedSlogan === "Mindy's Trusted Local Network · Slow down. Restore. Return to you." ||
+        storedSlogan === "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust." ||
+        storedSlogan === "Mindy's Local Circle · Curated with care. Rooted in trust.") {
+      localStorage.setItem('cornerstone_brand_slogan', "Curated with care \u00b7 Rooted in trust.");
+      storedSlogan = "Curated with care \u00b7 Rooted in trust.";
     }
-    brandSlogan = storedSlogan || "Mindy's Local Circle \u00b7 Curated with care. Rooted in trust.";
+    brandSlogan = storedSlogan || "Curated with care \u00b7 Rooted in trust.";
     brandColor = localStorage.getItem('cornerstone_brand_color') || "#5f6654";
     brandLogo = localStorage.getItem('cornerstone_brand_logo') || "";
 
