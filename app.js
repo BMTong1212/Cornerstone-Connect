@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentTheme = 'light';
   let editingBusinessId = null; // Track contact edits
   let tesseractWorker = null; // Lazy loaded
+  let deletedSeedIds = [];
 
   // Real-Time Sync State
   const SYNC_BUCKET = '6Z8C7D2wX3yZ8vQ4tB5u';
@@ -79,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateThemeIcon();
     }
 
-    // 2. Load Custom Businesses
+    // 2. Load Custom Businesses and Deleted Seeds
     const savedData = localStorage.getItem('cornerstone_custom_businesses');
     if (savedData) {
       try {
@@ -87,6 +88,15 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (e) {
         console.error("Failed to parse custom businesses:", e);
         customBusinesses = [];
+      }
+    }
+    const savedDeletedSeeds = localStorage.getItem('cornerstone_deleted_seed_ids');
+    if (savedDeletedSeeds) {
+      try {
+        deletedSeedIds = JSON.parse(savedDeletedSeeds);
+      } catch (e) {
+        console.error("Failed to parse deleted seed IDs:", e);
+        deletedSeedIds = [];
       }
     }
 
@@ -281,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Local additions/edits override default seed listings with matching IDs.
     const customWithBadges = customBusinesses.map(b => ({ ...b, isCustom: true }));
     const filteredDefaults = DEFAULT_DIRECTORY.filter(
-      d => !customBusinesses.some(c => c.id === d.id)
+      d => !customBusinesses.some(c => c.id === d.id) && !deletedSeedIds.includes(d.id)
     );
     return [...filteredDefaults, ...customWithBadges];
   }
@@ -392,14 +402,12 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
       `;
 
-      let deleteBtnHtml = '';
-      if (biz.isCustom) {
-        deleteBtnHtml = `
-          <button class="btn-icon btn-delete" data-id="${biz.id}" title="Delete Listing">
-            <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          </button>
-        `;
-      }
+      // Delete button is available on all listings so Mindy can curate the directory
+      const deleteBtnHtml = `
+        <button class="btn-icon btn-delete" data-id="${biz.id}" title="Delete Listing">
+          <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      `;
 
       card.innerHTML = `
         <div class="card-header">
@@ -537,8 +545,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Delete Business ---
   function deleteBusiness(id) {
     if (confirm("Are you sure you want to delete this business from your list?")) {
-      customBusinesses = customBusinesses.filter(b => b.id !== id);
-      localStorage.setItem('cornerstone_custom_businesses', JSON.stringify(customBusinesses));
+      const isCustom = customBusinesses.some(b => b.id === id);
+      if (isCustom) {
+        customBusinesses = customBusinesses.filter(b => b.id !== id);
+        localStorage.setItem('cornerstone_custom_businesses', JSON.stringify(customBusinesses));
+      } else {
+        // It's a seed listing, track its deletion in local storage
+        if (!deletedSeedIds.includes(id)) {
+          deletedSeedIds.push(id);
+          localStorage.setItem('cornerstone_deleted_seed_ids', JSON.stringify(deletedSeedIds));
+        }
+      }
       renderDirectory();
       showToast("Business deleted from list");
     }
@@ -1565,7 +1582,9 @@ document.addEventListener('DOMContentLoaded', () => {
   resetBtn.addEventListener('click', () => {
     if (confirm("This will erase ALL your manually added and scanned business listings. Default seed listings will remain. Continue?")) {
       customBusinesses = [];
+      deletedSeedIds = [];
       localStorage.removeItem('cornerstone_custom_businesses');
+      localStorage.removeItem('cornerstone_deleted_seed_ids');
       renderDirectory();
       showToast("Directory reset to default listings");
     }
