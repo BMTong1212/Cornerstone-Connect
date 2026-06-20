@@ -1,4 +1,4 @@
-const CACHE_NAME = 'connect-cache-v2';
+const CACHE_NAME = 'connect-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,7 +8,8 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './photos/ohns-logo-espresso.png',
   './photos/app-icon-192.png',
-  './photos/app-icon-512.png'
+  './photos/app-icon-512.png',
+  './photos/bg-pattern.png'
 ];
 
 self.addEventListener('install', event => {
