@@ -284,6 +284,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Directory Rendering ---
+
+  // Wraps all occurrences of `query` in <mark> tags for highlighting.
+  // Returns the escaped string with safe HTML highlight markers.
+  function highlightMatch(text, query) {
+    if (!text) return '';
+    const escaped = escapeHtml(text);
+    if (!query) return escaped;
+    const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return escaped.replace(new RegExp(`(${safeQuery})`, 'gi'), '<mark class="search-highlight">$1</mark>');
+  }
+
   function getCombinedList() {
     // Merge seed data with user added data
     // Local additions/edits override default seed listings with matching IDs.
@@ -298,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     directoryList.innerHTML = '';
     const combined = getCombinedList();
     const query = searchInput.value.toLowerCase().trim();
+    const rawQuery = searchInput.value.trim();
 
     // Filter list
     const filtered = combined.filter(biz => {
@@ -418,11 +430,17 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
       `;
 
+      // Determine if this card matched via the notes field specifically
+      const notesMatchedByQuery = query && biz.notes && biz.notes.toLowerCase().includes(query) &&
+        !biz.name.toLowerCase().includes(query) &&
+        !biz.category.toLowerCase().includes(query) &&
+        !(biz.owner && biz.owner.toLowerCase().includes(query));
+
       card.innerHTML = `
         <div class="card-header">
           <div class="card-title-group">
-            <h3>${escapeHtml(biz.name)}</h3>
-            ${biz.owner ? `<div class="owner-name">Owner: ${escapeHtml(biz.owner)}</div>` : ''}
+            <h3>${highlightMatch(biz.name, rawQuery)}</h3>
+            ${biz.owner ? `<div class="owner-name">Owner: ${highlightMatch(biz.owner, rawQuery)}</div>` : ''}
           </div>
           <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
             <span class="card-badge">${escapeHtml(biz.category)}</span>
@@ -430,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         <div class="card-body">
-          ${biz.notes ? `<p class="card-notes">"${escapeHtml(biz.notes)}"</p>` : ''}
+          ${biz.notes ? `<p class="card-notes">${notesMatchedByQuery ? '<span class="notes-match-label">matched from notes:</span> ' : '"'}${highlightMatch(biz.notes, rawQuery)}${notesMatchedByQuery ? '' : '"'}</p>` : ''}
           <div class="contact-info-list">
             ${phoneLink}
             ${emailLink}

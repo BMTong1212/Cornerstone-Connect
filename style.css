@@ -309,7 +309,8 @@ header p {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 4px 2px 14px;
+  -webkit-overflow-scrolling: touch; /* momentum scroll on iOS */
+  padding: 4px 16px 14px 2px; /* right padding so last pill isn't clipped */
   margin-bottom: 8px;
   scrollbar-width: none; /* Hide scrollbar Firefox */
 }
@@ -464,13 +465,28 @@ header p {
 /* Card Actions */
 .card-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   border-top: 1px solid var(--border);
   padding-top: 14px;
+  align-items: center;
+}
+
+/* Primary action buttons shrink but never vanish */
+.card-actions .btn-secondary,
+.card-actions .btn-directions {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* Icon group always floats to the right end */
+.card-actions .card-actions-right {
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .btn-secondary {
-  flex: 1;
   background: none;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -1119,4 +1135,27 @@ a.btn-secondary {
   background: var(--bg-input);
   border: 1px solid var(--border);
   color: var(--text-main);
+}
+
+/* --- Search Keyword Highlighting --- */
+mark.search-highlight {
+  background-color: rgba(200, 176, 139, 0.4); /* champagne brass tint */
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 600;
+}
+
+.notes-match-label {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-olive);
+  background-color: rgba(95, 102, 84, 0.1);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
