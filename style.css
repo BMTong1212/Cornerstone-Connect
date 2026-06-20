@@ -985,3 +985,138 @@ a.btn-secondary {
 .spinner {
   animation: spin 1s linear infinite;
 }
+
+/* --- Local Perks & Promos Feed --- */
+.promos-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.promo-card {
+  background-color: var(--bg-card);
+  border: 2px dashed var(--accent-gold);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+}
+
+.promo-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-olive);
+  box-shadow: var(--shadow-hover);
+}
+
+.promo-card::before, .promo-card::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: var(--bg-app);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid var(--border);
+  z-index: 10;
+}
+
+.promo-card::before {
+  left: -11px;
+}
+
+.promo-card::after {
+  right: -11px;
+}
+
+.promo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.promo-tag {
+  background-color: rgba(95, 102, 84, 0.1);
+  color: var(--accent-olive);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.promo-card h3 {
+  font-size: 1.35rem;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.promo-business-name {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.promo-code-box {
+  background: var(--bg-input);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.promo-code-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-sub);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.promo-code-value {
+  font-family: monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.promo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-sub);
+}
+
+/* Card Badge for Promos in Explore Tab */
+.badge-promo {
+  background-color: rgba(95, 102, 84, 0.12) !important;
+  color: var(--accent-olive) !important;
+  border-color: rgba(95, 102, 84, 0.2) !important;
+}
+
+/* Refer button action styling */
+.btn-refer-action {
+  background-color: rgba(95, 102, 84, 0.08) !important;
+  color: var(--accent-olive) !important;
+  border: 1px solid rgba(95, 102, 84, 0.15) !important;
+}
+
+.btn-refer-action:hover {
+  background-color: var(--accent-olive) !important;
+  color: #fff !important;
+}
+
+/* Referral Composer Modal specific overrides */
+#refer-modal textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+}

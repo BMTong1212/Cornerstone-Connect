@@ -29,9 +29,6 @@
 
   <!-- CSS Stylesheet -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- Client-Side OCR Engine (Tesseract.js) -->
-  <script src="https://unpkg.com/tesseract.js@5.0.3/dist/tesseract.min.js"></script>
 </head>
 <body>
 
@@ -84,141 +81,108 @@
       </div>
     </div>
 
-    <!-- 2. SCAN CARD PANEL -->
-    <div id="scan-panel" class="view-panel">
-      <div class="section-title">Scan Business Card</div>
+    <!-- 2. LOCAL PERKS / PROMOS PANEL -->
+    <div id="promos-panel" class="view-panel">
+      <div class="section-title">Local Perks &amp; Promos</div>
+      <p style="font-size: 0.88rem; color: var(--text-sub); margin-bottom: 24px; text-align: center;">
+        Exclusive client offers and local discounts from our trusted network partners. Show coupon code at checkout!
+      </p>
       
-      <div class="client-only-toggle" style="display: none; text-align: center; margin-bottom: 20px;">
-        <span class="client-toggle-view" style="color: var(--accent-copper); cursor: pointer; font-size: 0.9rem; text-decoration: underline; font-weight: 500;">Or enter business details manually &rarr;</span>
-      </div>
-
-      <!-- Drag/Drop Capture Zone -->
-      <div id="upload-area" class="card-upload-area">
-        <svg class="upload-icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <h4>Scan via Device Camera</h4>
-        <p>Tap to snap a photo, upload a business card, or drag & drop image here</p>
-        <input type="file" id="hidden-file-input" accept="image/*" capture="environment">
-      </div>
-
-      <!-- Alternative Import Methods (vCard and Clipboard) -->
-      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 0 0 24px 0;">
-        <div style="display: flex; gap: 10px; justify-content: center; width: 100%; flex-wrap: wrap;">
-          <button type="button" id="btn-clipboard-paste" class="btn-secondary" style="display: inline-flex; width: auto; padding: 8px 16px; font-size: 0.82rem; gap: 8px; border-style: dashed;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-            Paste from Clipboard
-          </button>
-          
-          <button type="button" id="btn-vcard-import-client" class="btn-secondary" style="display: inline-flex; width: auto; padding: 8px 16px; font-size: 0.82rem; gap: 8px; border-style: dashed;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8m8 4H8m2-8H8"/></svg>
-            Upload Contact Card (.vcf)
-          </button>
-        </div>
-        <input type="file" id="client-vcard-input" accept=".vcf" style="display: none;">
-        
-        <p style="font-size: 0.72rem; color: var(--text-sub); max-width: 320px; margin: 0 auto; text-align: center; line-height: 1.4;">
-          <strong>Tip:</strong> Scan the card using your phone's built-in camera, copy the detected text, and tap "Paste from Clipboard" to auto-fill instantly!
-        </p>
-      </div>
-
-      <!-- Sweeping Scanner Preview -->
-      <div id="preview-container" class="preview-container">
-        <img id="card-image-preview" src="" alt="Business Card Preview">
-        <div class="scanner-overlay">
-          <div class="scanner-line"></div>
-        </div>
-      </div>
-
-      <!-- Loading Tracker -->
-      <div id="ocr-progress-container" class="ocr-progress-container">
-        <div class="progress-header">
-          <span id="ocr-progress-text">Loading OCR...</span>
-        </div>
-        <div class="progress-track">
-          <div id="ocr-progress-bar" class="progress-fill"></div>
-        </div>
-      </div>
-
-      <!-- OCR Verification Split Form -->
-      <div id="verification-panel" style="display: none;">
-        <h3 class="section-title">Verify Scanned Info</h3>
-        
-        <div class="split-container">
-          <!-- Live editable Form fields -->
-          <form id="verify-entry-form">
-            <div class="form-group">
-              <label for="verify-name">Business Name *</label>
-              <input type="text" id="verify-name" class="form-control" required>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="verify-category">Category *</label>
-                <select id="verify-category" class="form-control" required>
-                  <!-- Populated dynamically -->
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="verify-owner">Owner / Contact</label>
-                <input type="text" id="verify-owner" class="form-control">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="verify-phone">Phone Number</label>
-                <input type="tel" id="verify-phone" class="form-control" placeholder="(985) 000-0000">
-              </div>
-              <div class="form-group">
-                <label for="verify-email">Email Address</label>
-                <input type="email" id="verify-email" class="form-control" placeholder="name@domain.com">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="verify-website">Website URL</label>
-                <input type="text" id="verify-website" class="form-control" placeholder="www.domain.com">
-              </div>
-              <div class="form-group">
-                <label for="verify-social">Social Media Handle</label>
-                <input type="text" id="verify-social" class="form-control" placeholder="@handle">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="verify-address">Physical Address</label>
-              <input type="text" id="verify-address" class="form-control" placeholder="Street, City, State ZIP">
-            </div>
-
-            <div class="form-group">
-              <label for="verify-notes">Notes / Endorsements</label>
-              <textarea id="verify-notes" class="form-control" placeholder="Why do you recommend this business?"></textarea>
-            </div>
-
-            <button type="submit" class="btn-primary">
-              <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
-              Save to Directory
-            </button>
-          </form>
-
-          <!-- Raw Scanned Text for review/copy-paste -->
-          <div class="raw-text-panel">
-            <h5>Raw Scanned Text</h5>
-            <div id="raw-text-content" class="raw-text-content"></div>
-            <p style="font-size: 0.72rem; color: var(--text-sub); margin-top: 8px;">If parsing missed any fields, you can copy it from here and paste it in the fields above.</p>
-          </div>
-        </div>
+      <!-- Promos Grid -->
+      <div id="promos-list" class="promos-grid">
+        <!-- JavaScript renders promo cards here -->
       </div>
     </div>
 
-    <!-- 3. ADD MANUALLY PANEL -->
+    <!-- 3. ADD BUSINESS PANEL -->
     <div id="manual-panel" class="view-panel">
       <div class="section-title">Add Business Listing</div>
       
-      <div class="client-only-toggle" style="display: none; text-align: center; margin-bottom: 20px;">
-        <span class="client-toggle-view" style="color: var(--accent-copper); cursor: pointer; font-size: 0.9rem; text-decoration: underline; font-weight: 500;">&larr; Or scan a physical business card</span>
+      <!-- Quick Import from vCard -->
+      <div style="background: rgba(95, 102, 84, 0.05); border: 1px dashed var(--border); border-radius: 12px; padding: 16px; margin-bottom: 24px; text-align: center;">
+        <h4 style="font-size: 0.9rem; margin-bottom: 6px; color: var(--accent-olive);">Quick Import Contact Card</h4>
+        <p style="font-size: 0.72rem; color: var(--text-sub); margin-bottom: 12px;">Upload a .vcf file to auto-populate the form instantly.</p>
+        <button type="button" id="btn-vcard-import-client" class="btn-secondary" style="margin: 0 auto; display: inline-flex; width: auto; padding: 8px 16px; font-size: 0.82rem; gap: 8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8m8 4H8m2-8H8"/></svg>
+          Upload Contact Card (.vcf)
+        </button>
+        <input type="file" id="client-vcard-input" accept=".vcf" style="display: none;">
+      </div>
+
+      <!-- vCard / Upload Verification Form -->
+      <div id="verification-panel" style="display: none; background: rgba(95, 102, 84, 0.03); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+        <h3 class="section-title" style="font-size: 1.3rem; margin-bottom: 12px;">Verify Imported Info</h3>
+        
+        <form id="verify-entry-form">
+          <div class="form-group">
+            <label for="verify-name">Business Name *</label>
+            <input type="text" id="verify-name" class="form-control" required>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="verify-category">Category *</label>
+              <select id="verify-category" class="form-control" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="verify-owner">Owner / Contact</label>
+              <input type="text" id="verify-owner" class="form-control">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="verify-phone">Phone Number</label>
+              <input type="tel" id="verify-phone" class="form-control" placeholder="(985) 000-0000">
+            </div>
+            <div class="form-group">
+              <label for="verify-email">Email Address</label>
+              <input type="email" id="verify-email" class="form-control" placeholder="name@domain.com">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="verify-website">Website URL</label>
+              <input type="text" id="verify-website" class="form-control" placeholder="www.domain.com">
+            </div>
+            <div class="form-group">
+              <label for="verify-social">Social Media Handle</label>
+              <input type="text" id="verify-social" class="form-control" placeholder="@handle">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="verify-address">Physical Address</label>
+            <input type="text" id="verify-address" class="form-control" placeholder="Street, City, State ZIP">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="verify-promo-title">Exclusive Promo / Offer (Optional)</label>
+              <input type="text" id="verify-promo-title" class="form-control" placeholder="e.g. 10% off any service">
+            </div>
+            <div class="form-group">
+              <label for="verify-promo-code">Promo Code / Instructions (Optional)</label>
+              <input type="text" id="verify-promo-code" class="form-control" placeholder="e.g. CODE">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="verify-notes">Notes / Endorsements</label>
+            <textarea id="verify-notes" class="form-control" placeholder="Why do you recommend this business?"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%;">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
+            Save to Directory
+          </button>
+        </form>
       </div>
       
+      <!-- Manual Form Entry -->
       <form id="manual-entry-form">
         <div class="form-group">
           <label for="manual-name">Business Name *</label>
@@ -263,6 +227,17 @@
         <div class="form-group">
           <label for="manual-address">Physical Address</label>
           <input type="text" id="manual-address" class="form-control" placeholder="Street, City, State ZIP">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="manual-promo-title">Exclusive Promo / Offer (Optional)</label>
+            <input type="text" id="manual-promo-title" class="form-control" placeholder="e.g. 10% off plumbing services">
+          </div>
+          <div class="form-group">
+            <label for="manual-promo-code">Promo Code / Claim Instructions (Optional)</label>
+            <input type="text" id="manual-promo-code" class="form-control" placeholder="e.g. BOURGEOIS10">
+          </div>
         </div>
 
         <div class="form-group">
@@ -472,6 +447,68 @@
 
     <!-- Feedback Popups -->
     <div id="toast" class="toast">Operation Successful</div>
+
+    <!-- Hidden OCR nodes to maintain app.js selector compatibility -->
+    <div style="display: none;">
+      <div id="preview-container">
+        <img id="card-image-preview" src="" alt="Preview">
+      </div>
+      <div id="ocr-progress-container">
+        <div id="ocr-progress-bar"></div>
+        <div id="ocr-progress-text"></div>
+      </div>
+      <div id="raw-text-content"></div>
+      <div id="upload-area"></div>
+      <input type="file" id="hidden-file-input">
+      <button id="btn-clipboard-paste"></button>
+    </div>
+
+    <!-- Warm Intro Referral Modal -->
+    <div id="refer-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: fadeIn 0.2s ease;">
+      <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; max-width: 440px; width: 90%; box-shadow: var(--shadow); position: relative;">
+        <button id="btn-close-refer" style="position: absolute; right: 16px; top: 16px; background: none; border: none; color: var(--text-sub); cursor: pointer; padding: 4px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--accent-olive); margin-bottom: 8px;">Refer Business</h3>
+        <p style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 16px;">Create a warm, personalized introduction text message:</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="refer-client-name" style="font-size: 0.78rem; font-weight: 600; display: block; margin-bottom: 4px;">Client's Name (Recipient)</label>
+            <input type="text" id="refer-client-name" class="form-control" placeholder="e.g. Sarah">
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="refer-template-select" style="font-size: 0.78rem; font-weight: 600; display: block; margin-bottom: 4px;">Select Message Tone</label>
+            <select id="refer-template-select" class="form-control">
+              <option value="warm">Warm &amp; Professional (Recommended)</option>
+              <option value="quick">Quick Referral Link</option>
+              <option value="direct">Direct Introduction (Co-Owner style)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 0.78rem; font-weight: 600; display: block; margin-bottom: 4px;">Message Preview</label>
+            <textarea id="refer-message-preview" class="form-control" style="height: 120px; font-size: 0.85rem; line-height: 1.4; resize: none;" readonly></textarea>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px;">
+            <button id="btn-refer-sms" class="btn-primary" style="padding: 10px; font-size: 0.82rem; display: inline-flex; justify-content: center; align-items: center; gap: 8px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Send SMS
+            </button>
+            <button id="btn-refer-wa" class="btn-primary" style="padding: 10px; font-size: 0.82rem; display: inline-flex; justify-content: center; align-items: center; gap: 8px; background: #25D366; border-color: #25D366;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              WhatsApp
+            </button>
+          </div>
+          <button id="btn-refer-copy" class="btn-secondary" style="padding: 10px; font-size: 0.82rem; width: 100%; display: inline-flex; justify-content: center; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy to Clipboard
+          </button>
+        </div>
+      </div>
+    </div>
 
   </div>
 

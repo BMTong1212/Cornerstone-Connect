@@ -14,7 +14,9 @@ const DEFAULT_DIRECTORY = [
     address: "131 Oak Ct, Suite B, Slidell, LA 70458",
     social: "@oakharbornailspa",
     notes: "A Modern Ritual House. Offering unhurried and premium pedicure rituals in a quiet luxury atmosphere.",
-    isFeatured: true
+    isFeatured: true,
+    promoTitle: "10% off any premium Ritual Pedicure service",
+    promoCode: "OHN10"
   },
   {
     id: "sl-cafe-02",
@@ -27,7 +29,9 @@ const DEFAULT_DIRECTORY = [
     address: "338 Carey St, Slidell, LA 70458",
     social: "@oldetownecoffee",
     notes: "Local favorite in Olde Towne Slidell. Excellent house roasts, breakfast pastries, and community workspace.",
-    isFeatured: false
+    isFeatured: false,
+    promoTitle: "Free fresh pastry with any coffee drink purchase",
+    promoCode: "COFFEEPERK"
   },
   {
     id: "sl-re-03",
@@ -79,7 +83,9 @@ const DEFAULT_DIRECTORY = [
     address: "1810 Gause Blvd West, Slidell, LA 70460",
     social: "@poshboutique_slidell",
     notes: "Chic local boutique for women's apparel, accessories, and unique gifts. Excellent customer service.",
-    isFeatured: false
+    isFeatured: false,
+    promoTitle: "15% off your first boutique purchase",
+    promoCode: "POSH15"
   }
 ];
 

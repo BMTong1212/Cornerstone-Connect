@@ -128,19 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.display = 'block';
       });
 
-      // Setup client toggle links click listeners
+      // Setup client toggle links click listeners (no-op since scan tab is removed)
       document.querySelectorAll('.client-toggle-view').forEach(link => {
-        link.addEventListener('click', () => {
-          if (activeTab === 'scan') {
-            switchTab('manual');
-          } else {
-            switchTab('scan');
-          }
-        });
+        link.style.display = 'none';
       });
       
-      // Default client views to scan or manual
-      const startTab = (tabParam === 'manual' || tabParam === 'add-client') ? 'manual' : 'scan';
+      // Default client views to manual
+      const startTab = 'manual';
       switchTab(startTab);
     } else {
       // Mindy/Owner Mode Setup
@@ -222,6 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset temporary states on tab leave
     if (tabId !== 'scan') {
       resetScanState();
+    }
+
+    if (tabId === 'promos') {
+      renderPromos();
     }
 
     // Handle manual tab edit mode switching
@@ -344,6 +342,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (biz.isCustom) {
         badgeHtml = `<span class="card-badge" style="background: rgba(180,127,92,0.12); color: var(--accent-copper); border-color: rgba(180,127,92,0.2)">My Circle</span>`;
       }
+      if (biz.promoTitle) {
+        badgeHtml += `<span class="card-badge badge-promo" title="${escapeHtml(biz.promoTitle)}">Gift Promo</span>`;
+      }
 
       // Generate HTML links for contact details
       const phoneLink = biz.phone ? `<a href="tel:${biz.phone.replace(/[^0-9+]/g, '')}" class="contact-item">
@@ -396,6 +397,14 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
       `;
 
+      // Refer (Warm Intro) Button
+      const referBtnHtml = `
+        <button class="btn-secondary btn-refer-action btn-refer" data-id="${biz.id}" title="Warm Intro Referral">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Refer
+        </button>
+      `;
+
       const editBtnHtml = `
         <button class="btn-icon btn-edit" data-id="${biz.id}" title="Edit Listing">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -437,6 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </button>
           ${directionsBtnHtml}
           ${shareBtnHtml}
+          ${referBtnHtml}
           <div class="card-actions-right">
             ${editBtnHtml}
             ${deleteBtnHtml}
@@ -458,6 +468,15 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation();
         const id = btn.getAttribute('data-id');
         deleteBusiness(id);
+      });
+    });
+
+    // Refer Button Listener
+    document.querySelectorAll('.btn-refer').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        openReferModal(id);
       });
     });
 
@@ -512,6 +531,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('manual-address').value = biz.address || '';
     document.getElementById('manual-social').value = biz.social || '';
     document.getElementById('manual-notes').value = biz.notes || '';
+    document.getElementById('manual-promo-title').value = biz.promoTitle || '';
+    document.getElementById('manual-promo-code').value = biz.promoCode || '';
 
     // Update panel titles for edit mode
     document.querySelector('#manual-panel .section-title').textContent = 'Edit Business Details';
@@ -689,6 +710,8 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('verify-address').value = biz.address;
           document.getElementById('verify-social').value = biz.social || '';
           document.getElementById('verify-notes').value = biz.notes;
+          document.getElementById('verify-promo-title').value = '';
+          document.getElementById('verify-promo-code').value = '';
           
           // Display the verification panel and scroll to it
           previewContainer.classList.remove('scanning');
@@ -1419,8 +1442,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (success) {
         // Hide forms and headers
-        document.getElementById('scan-panel').classList.remove('active');
-        document.getElementById('manual-panel').classList.remove('active');
+        const promosPanel = document.getElementById('promos-panel');
+        if (promosPanel) promosPanel.classList.remove('active');
+        const manualPanel = document.getElementById('manual-panel');
+        if (manualPanel) manualPanel.classList.remove('active');
         document.getElementById('client-welcome-header').style.display = 'none';
         
         // Show success screen
@@ -1551,7 +1576,9 @@ document.addEventListener('DOMContentLoaded', () => {
       website: document.getElementById('manual-website').value.trim(),
       address: document.getElementById('manual-address').value.trim(),
       social: document.getElementById('manual-social').value.trim(),
-      notes: document.getElementById('manual-notes').value.trim()
+      notes: document.getElementById('manual-notes').value.trim(),
+      promoTitle: document.getElementById('manual-promo-title').value.trim() || undefined,
+      promoCode: document.getElementById('manual-promo-code').value.trim() || undefined
     };
 
     handleListingSave(newBiz, false);
@@ -1571,7 +1598,9 @@ document.addEventListener('DOMContentLoaded', () => {
       website: document.getElementById('verify-website').value.trim(),
       address: document.getElementById('verify-address').value.trim(),
       social: document.getElementById('verify-social').value.trim(),
-      notes: document.getElementById('verify-notes').value.trim()
+      notes: document.getElementById('verify-notes').value.trim(),
+      promoTitle: document.getElementById('verify-promo-title').value.trim() || undefined,
+      promoCode: document.getElementById('verify-promo-code').value.trim() || undefined
     };
 
     if (!newBiz.name) {
@@ -1681,6 +1710,172 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  // --- Local Perks Rendering ---
+  function renderPromos() {
+    const promosList = document.getElementById('promos-list');
+    if (!promosList) return;
+    
+    promosList.innerHTML = '';
+    const combined = getCombinedList();
+    const promoBusinesses = combined.filter(biz => biz.promoTitle && biz.promoTitle.trim() !== '');
+    
+    if (promoBusinesses.length === 0) {
+      promosList.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; padding: 40px; text-align: center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-sub)" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 12px; opacity: 0.6;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+          <p style="color: var(--text-sub);">No active promos or exclusive discounts at this time.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    promoBusinesses.forEach(biz => {
+      const card = document.createElement('div');
+      card.className = 'promo-card';
+      
+      const promoCodeHtml = biz.promoCode ? `
+        <div class="promo-code-box">
+          <div class="promo-code-label">Coupon Code</div>
+          <div class="promo-code-value">${escapeHtml(biz.promoCode)}</div>
+        </div>
+      ` : `
+        <div class="promo-code-box" style="border-style: solid; background: transparent;">
+          <div class="promo-code-label">How to Claim</div>
+          <div class="promo-code-value" style="font-size: 0.95rem; font-family: inherit; font-weight: 600;">Mention this directory at checkout!</div>
+        </div>
+      `;
+      
+      card.innerHTML = `
+        <div class="promo-header">
+          <span class="promo-tag">${escapeHtml(biz.category)}</span>
+          <span style="font-size: 0.72rem; color: var(--accent-gold); font-weight: 600; text-transform: uppercase;">Exclusive Perk</span>
+        </div>
+        <h3>${escapeHtml(biz.promoTitle)}</h3>
+        <div class="promo-business-name">at ${escapeHtml(biz.name)}</div>
+        
+        ${promoCodeHtml}
+        
+        <div class="promo-footer">
+          <span>Contact: ${escapeHtml(biz.phone || 'N/A')}</span>
+          ${biz.website ? `<a href="${biz.website}" target="_blank" rel="noopener" style="color: var(--accent-gold); text-decoration: underline; font-weight: 500;">Visit Web &rarr;</a>` : ''}
+        </div>
+      `;
+      
+      promosList.appendChild(card);
+    });
+  }
+
+  // --- Warm Intro Referral Modal Controllers ---
+  let currentReferBiz = null;
+
+  function openReferModal(id) {
+    const combined = getCombinedList();
+    const biz = combined.find(b => b.id === id);
+    if (!biz) return;
+    
+    currentReferBiz = biz;
+    
+    document.getElementById('refer-client-name').value = '';
+    document.getElementById('refer-template-select').value = 'warm';
+    
+    updateReferPreview();
+    
+    const referModal = document.getElementById('refer-modal');
+    if (referModal) referModal.style.display = 'flex';
+  }
+
+  function closeReferModal() {
+    const referModal = document.getElementById('refer-modal');
+    if (referModal) referModal.style.display = 'none';
+    currentReferBiz = null;
+  }
+
+  function updateReferPreview() {
+    if (!currentReferBiz) return;
+    
+    const clientName = document.getElementById('refer-client-name').value.trim() || "[Client Name]";
+    const templateType = document.getElementById('refer-template-select').value;
+    const previewTextarea = document.getElementById('refer-message-preview');
+    
+    const bizName = currentReferBiz.name;
+    const bizOwner = currentReferBiz.owner || '';
+    const bizPhone = currentReferBiz.phone || '';
+    const bizWeb = currentReferBiz.website || '';
+    
+    let msg = '';
+    
+    if (templateType === 'warm') {
+      msg = `Hi ${clientName}! I highly recommend ${bizOwner ? `${bizOwner} from ` : ''}${bizName} for any services you need. ` +
+            `They are part of my trusted network and do amazing work. You can reach them at ${bizPhone || 'their website'}` +
+            `${bizWeb ? ` (${bizWeb})` : ''}. Tell them Mindy from Oak Harbor referred you!`;
+    } else if (templateType === 'quick') {
+      msg = `Here is the contact card for ${bizName}${bizOwner ? ` (${bizOwner})` : ''} from my trusted business network. ` +
+            `They are highly reliable: ${bizPhone ? `Phone: ${bizPhone} ` : ''}${bizWeb ? `Web: ${bizWeb}` : ''}`;
+    } else if (templateType === 'direct') {
+      msg = `Hey ${clientName}, this is Mindy. I wanted to connect you with ${bizOwner ? bizOwner : 'the owner'} of ${bizName}. ` +
+            `They are excellent at what they do and I personally vouch for their services. ` +
+            `Contact: ${bizPhone || 'N/A'} ${bizWeb ? `| ${bizWeb}` : ''}. Let me know if you need anything else!`;
+    }
+    
+    if (previewTextarea) {
+      previewTextarea.value = msg;
+    }
+  }
+
+  // --- Warm Intro Modal Binding ---
+  const btnCloseRefer = document.getElementById('btn-close-refer');
+  const referModal = document.getElementById('refer-modal');
+  const referClientInput = document.getElementById('refer-client-name');
+  const referTemplateSelect = document.getElementById('refer-template-select');
+  const btnReferSms = document.getElementById('btn-refer-sms');
+  const btnReferWa = document.getElementById('btn-refer-wa');
+  const btnReferCopy = document.getElementById('btn-refer-copy');
+  
+  if (btnCloseRefer) btnCloseRefer.addEventListener('click', closeReferModal);
+  if (referModal) {
+    referModal.addEventListener('click', (e) => {
+      if (e.target === referModal) closeReferModal();
+    });
+  }
+  
+  if (referClientInput) {
+    referClientInput.addEventListener('input', updateReferPreview);
+  }
+  if (referTemplateSelect) {
+    referTemplateSelect.addEventListener('change', updateReferPreview);
+  }
+  
+  if (btnReferSms) {
+    btnReferSms.addEventListener('click', () => {
+      const msg = document.getElementById('refer-message-preview').value;
+      window.open(`sms:?body=${encodeURIComponent(msg)}`, '_blank');
+      showToast("Opening messaging app...");
+      closeReferModal();
+    });
+  }
+  
+  if (btnReferWa) {
+    btnReferWa.addEventListener('click', () => {
+      const msg = document.getElementById('refer-message-preview').value;
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+      showToast("Opening WhatsApp...");
+      closeReferModal();
+    });
+  }
+  
+  if (btnReferCopy) {
+    btnReferCopy.addEventListener('click', () => {
+      const msg = document.getElementById('refer-message-preview').value;
+      navigator.clipboard.writeText(msg).then(() => {
+        showToast("Referral text copied to clipboard!");
+        closeReferModal();
+      }).catch(err => {
+        console.error("Clipboard write error:", err);
+        showToast("Failed to copy. Please manually copy the preview.");
+      });
+    });
   }
 
   // --- Run Init ---
